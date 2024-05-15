@@ -32,11 +32,11 @@ This app supports couple commands. You cannot enter them directly into bash sinc
 Here is a list of commands:
  - `g` - prints out modul version (MSG_GET_VERSION)
  - `s` - sets parameters for computation (MSG_SET_COMPUTE)
-`1` - spustí výpočet (MSG_COMPUTE)
+ - `1` - spustí výpočet (MSG_COMPUTE)
  - `a` - aborts running computation (MSG_ABORT)
  - `r` - resets chunk id to 0
-`l` - smaže aktuální obsah výpočtu (bufferu)
-`p` - překreslí obsah okna aktuálním stavem výpočtu (bufferem)
+ - `l` - smaže aktuální obsah výpočtu (bufferu)
+ - `p` - překreslí obsah okna aktuálním stavem výpočtu (bufferem)
  - `c` - computes fractal and prints it out
  - `q` - ends the program
  - `KEY_UP` - increase the number `n` of iterations (this makes computation more precise)
