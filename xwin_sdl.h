@@ -2,6 +2,7 @@
  * Filename: xwin_sdl.h
  * Date:     2015/06/18 14:37
  * Author:   Jan Faigl
+ * Modified by: Jakub Kornel
  */
 
 #ifndef __XWIN_SDL_H__
@@ -15,6 +16,9 @@ void menu_close();
 
 void xwin_redraw(int w, int h, unsigned char *img);
 void xwin_poll_events(void);
+
+void *get_menu_renderer();
+void *get_menu_win();
 
 #endif
 

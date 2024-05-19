@@ -1,7 +1,11 @@
 /*
- * filename: main.c
- * author: Jan Faigl
+ * filename: main.h
+ * date: 2024/04/29 08:33 
+ * author: Jakub Kornel
+ * email: kornejak@fel.cvut.cz
+ * inspired by: Jan Faigl
 */
+
 #include <stdlib.h>
 #include <stdbool.h>
 #include <unistd.h>
@@ -16,8 +20,6 @@
 #include "computation.h"
 #include "gui.h"
 
-static void process_pipe_message(event* const ev);
-
 void* main_thread(void* d)
 {
   my_assert(d != NULL, __func__, __LINE__, __FILE__) ;
@@ -30,10 +32,6 @@ void* main_thread(void* d)
   computation_init();
   gui_init();
 
-
-  // event ev = { .type=EV_STARTUP };
-  // queue_push(ev);
-
   while(!quit) {
     event ev = queue_pop();
     msg.type = MSG_NBR;
@@ -45,7 +43,7 @@ void* main_thread(void* d)
 
       case EV_QUIT:
         debug("Quit received");
-        // msg.type = MSG_QUIT;
+        msg.type = MSG_QUIT;
         break;
 
       case EV_GET_VERSION:
@@ -58,7 +56,7 @@ void* main_thread(void* d)
 
       case EV_COMPUTE:
         if (is_abort())
-          sleep(0.1);
+          sleep((unsigned int)0.1);
         enable_comp();
         info(compute(&msg) ? "compute" : "fail compute");
         break;
@@ -107,7 +105,7 @@ void* main_thread(void* d)
   return NULL;
 }
 
-void process_pipe_message(event* const ev)
+void process_pipe_message(event *const ev)
 {
   my_assert(ev != NULL && ev->type == EV_PIPE_IN_MESSAGE && ev->data.msg, __func__, __LINE__, __FILE__);
   ev->type = EV_TYPE_NUM;

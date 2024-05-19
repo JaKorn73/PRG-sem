@@ -5,11 +5,9 @@
  * email: kornejak@fel.cvut.cz
 */
 #include <stdlib.h>
-#include <stdio.h>
 
 #include "computation.h"
 #include "utils.h"
-#include "messages.h"
 
 static struct {
   double c_re;
@@ -70,39 +68,84 @@ static struct {
   .reseted = false
 };
 
-void computation_init(void)
+// Getters for GUI
+double get_range_re_min(void)
 {
-  comp.grid = my_alloc(comp.grid_w * comp.grid_h);
-
-  comp.chunk_n_re = comp.grid_w / 10;
-  comp.chunk_n_im = comp.grid_h / 10;
-  
-  comp.d_re = (comp.range_re_max - comp.range_re_min) / (1. * comp.grid_w);
-  comp.d_im = -(comp.range_im_max - comp.range_im_min) / (1. * comp.grid_h);
-
-  comp.nbr_chunks = (comp.grid_w * comp.grid_h) / (comp.chunk_n_re * comp.chunk_n_im);
-  fprintf(stderr, "Number of chunks: %d", comp.nbr_chunks);
-
+  return comp.range_re_min;
 }
 
-void computation_cleanup(void)
+double get_range_re_max(void)
 {
-  if (comp.grid)
-    free(comp.grid);
-
-  comp.grid = NULL;
+  return comp.range_re_max;
 }
 
+double get_range_im_min(void)
+{
+  return comp.range_im_min;
+}
+
+double get_range_im_max(void)
+{
+  return comp.range_im_max;
+}
+
+double get_c_re(void)
+{
+  return comp.c_re;
+}
+
+double get_c_im(void)
+{
+  return comp.c_im;
+}
+
+int get_n(void)
+{
+  return comp.n;
+}
+
+// Setters for GUI
+void set_range_re_min(double new_value)
+{
+  comp.range_re_min = new_value;
+}
+
+void set_range_re_max(double new_value)
+{
+  comp.range_re_max = new_value;
+}
+
+void set_range_im_min(double new_value)
+{
+  comp.range_im_min = new_value;
+}
+
+void set_range_im_max(double new_value)
+{
+  comp.range_im_max = new_value;
+}
+
+void set_c_re(double new_value)
+{
+  comp.c_re = new_value;
+}
+
+void set_c_im(double new_value)
+{
+  comp.c_im = new_value;
+}
+
+void set_n(int new_value)
+{
+  comp.n = new_value;
+}
+
+// Functions for handling user input
 void clean_buffer(void)
 {
   if (comp.grid)
     free(comp.grid);
   comp.grid = my_calloc(comp.grid_h * comp.grid_w);
-}
-
-void end_computing(void)
-{
-  comp.computing = false;
 }
 
 bool is_computing(void)
@@ -113,6 +156,16 @@ bool is_computing(void)
 bool is_done(void)
 {
   return comp.done;
+}
+
+bool is_abort(void)
+{
+  return comp.abort;
+}
+
+bool is_background(void)
+{
+  return comp.background;
 }
 
 void set_grid_size(int w, int h)
@@ -128,14 +181,15 @@ void get_grid_size(int *w, int *h)
   *w = comp.grid_w;
   *h = comp.grid_h;
 }
-bool is_abort(void)
-{
-  return comp.abort;
-}
 
 void abort_comp(void)
 {
   comp.abort = true;
+  comp.computing = false;
+}
+
+void end_computing(void)
+{
   comp.computing = false;
 }
 
@@ -146,19 +200,9 @@ void enable_comp(void)
   comp.abort = false;
 }
 
-void increase_n(void)
-{
-  comp.n += 10;
-}
-
 void compute_background(void)
 {
   comp.background = true;
-}
-
-bool is_background(void)
-{
-  return comp.background;
 }
 
 void reset_cid(void)
@@ -171,6 +215,11 @@ void reset_cid(void)
   }
 }
 
+void increase_n(void)
+{
+  comp.n += 10;
+}
+
 void decrease_n(void)
 {
   if (comp.n <= 0 || (comp.n - 10) <= 0) {
@@ -178,6 +227,28 @@ void decrease_n(void)
     warn("n is already 0");
   } else
     comp.n -= 10;
+}
+
+// Computation functions
+void computation_init(void)
+{
+  comp.grid = my_alloc(comp.grid_w * comp.grid_h);
+
+  comp.chunk_n_re = comp.grid_w / 10;
+  comp.chunk_n_im = comp.grid_h / 10;
+  
+  comp.d_re = (comp.range_re_max - comp.range_re_min) / (1. * comp.grid_w);
+  comp.d_im = -(comp.range_im_max - comp.range_im_min) / (1. * comp.grid_h);
+
+  comp.nbr_chunks = (comp.grid_w * comp.grid_h) / (comp.chunk_n_re * comp.chunk_n_im);
+}
+
+void computation_cleanup(void)
+{
+  if (comp.grid)
+    free(comp.grid);
+
+  comp.grid = NULL;
 }
 
 bool set_compute(message *msg)
@@ -199,7 +270,6 @@ bool set_compute(message *msg)
 
 bool compute(message* msg)
 {
-  fprintf(stderr, "CID: %d\n", comp.cid);
   if (!is_computing() || comp.reseted) { // first chunk
     comp.reseted = false;
     comp.cid = 0;
